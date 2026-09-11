@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>For You, Always 🤍</title>
+
+<!-- Premium fonts (only external dependency) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  --cream:#fff9f2;
+  --paper:#fffdf8;
+  --pink:#f5c6d6;
+  --pink-deep:#e98ba7;
+  --lavender:#dccdf0;
+  --peach:#ffd9b8;
+  --ink:#5a4a52;
+  --ink-soft:#8a7580;
+  --gold:#e8c27a;
+  --shadow:0 18px 50px rgba(180,140,160,.20);
+  --glass:rgba(255,255,255,.55);
+  --radius:26px;
+  --head:'Cormorant Garamond', serif;
+  --body:'Nunito', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:var(--body);
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 800px at 80% -10%, rgba(220,205,240,.55), transparent 60%),
+    radial-gradient(1000px 700px at 10% 110%, rgba(245,198,214,.5), transparent 60%),
+    linear-gradient(160deg,#fff8f0,#fff3ee 45%,#f6edfb);
+  overflow-x:hidden;
+  min-height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+.ambient{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+.floater{position:absolute;opacity:.5;animation:floatUp linear infinite;}
+@keyframes floatUp{
+  0%{transform:translateY(110vh) rotate(0);}
+  100%{transform:translateY(-15vh) rotate(25deg);}
+}
+
+/* ============ SCREENS ============ */
+.screen{position:relative;z-index:2;min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px;}
+.screen.active{display:flex;animation:screenIn .8s cubic-bezier(.22,.8,.3,1);}
+@keyframes screenIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.wrap{width:100%;max-width:520px;text-align:center;}
+
+/* ============ LOCK SCREEN ============ */
+.bunting{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;gap:0;height:46px;z-index:3;pointer-events:none;flex-wrap:nowrap;overflow:hidden;}
+.flag{width:34px;height:22px;margin-top:0;background:linear-gradient(135deg,var(--pink),var(--lavender));border-radius:0 0 8px 8px;clip-path:polygon(0 0,100% 0,50% 100%);}
+.flag:nth-child(2n){background:linear-gradient(135deg,var(--peach),var(--pink));}
+.flag:nth-child(3n){background:linear-gradient(135deg,var(--lavender),var(--peach));}
+.bunting::before,.bunting::after{content:"";position:absolute;top:-14px;width:2px;height:70px;background:rgba(160,120,150,.35);}
+.bunting::before{left:6%;}.bunting::after{right:6%;}
+.bear{font-size:78px;line-height:1;filter:drop-shadow(0 10px 18px rgba(180,130,160,.35));animation:bearBob 3.4s ease-in-out infinite;}
+@keyframes bearBob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-10px) rotate(3deg);}}
+.lock-title{font-family:var(--head);font-weight:600;font-size:clamp(2.2rem,7vw,3.1rem);margin:6px 0 4px;letter-spacing:.5px;background:linear-gradient(120deg,var(--pink-deep),#b58ad0 55%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.lock-sub{color:var(--ink-soft);font-size:1.02rem;margin-bottom:26px;font-weight:600;}
+.dots{display:flex;justify-content:center;gap:10px;margin:6px auto 24px;}
+.dot{width:13px;height:13px;border-radius:50%;background:rgba(233,139,167,.18);border:1.5px solid var(--pink-deep);transition:all .25s;transform:scale(1);}
+.dot.filled{background:var(--pink-deep);transform:scale(1.15);box-shadow:0 0 0 4px rgba(233,139,167,.18);}
+.dot.error{animation:dotBlink .4s ease;}
+@keyframes dotBlink{0%,100%{transform:scale(1);}50%{transform:scale(1.4);background:var(--ink-soft);}}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:300px;margin:0 auto;}
+.key{height:64px;border:none;border-radius:18px;background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 8px 20px rgba(180,140,160,.15), inset 0 1px 0 #fff;font-family:var(--body);font-size:1.45rem;font-weight:800;color:var(--ink);cursor:pointer;transition:transform .12s, box-shadow .2s, background .2s;}
+.key:active{transform:scale(.92);box-shadow:0 3px 10px rgba(180,140,160,.2);background:#fff;}
+.key.ctrl{font-size:1.1rem;font-weight:700;color:var(--pink-deep);background:rgba(255,255,255,.4);}
+.hint{margin:22px auto 0;font-size:.92rem;color:var(--ink-soft);max-width:300px;line-height:1.5;font-weight:600;}
+.lock-msg{min-height:24px;margin:12px 0 -4px;font-weight:700;color:var(--pink-deep);}
+.shake{animation:shake .5s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-9px);}40%,80%{transform:translateX(9px);}}
+.create-link{margin-top:26px;font-size:.88rem;color:var(--ink-soft);cursor:pointer;font-weight:700;background:none;border:none;font-family:var(--body);}
+.create-link:hover{color:var(--pink-deep);}
+
+/* ============ CREATOR FORM ============ */
+.creator{max-width:520px;margin:0 auto;text-align:left;}
+.creator .creator-head{text-align:center;margin-bottom:20px;}
+.creator-title{font-family:var(--head);font-size:clamp(1.7rem,6vw,2.2rem);font-weight:600;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-weight:800;font-size:.88rem;margin-bottom:6px;color:var(--ink);}
+.field .lbl-note{font-weight:600;color:var(--ink-soft);font-size:.78rem;}
+.field input[type=text],.field input[type=date],.field textarea,.field select{
+  width:100%;padding:12px 14px;border:1.5px solid rgba(233,139,167,.3);border-radius:14px;
+  font-family:var(--body);font-size:.98rem;color:var(--ink);background:rgba(255,255,255,.7);
+  outline:none;transition:border .2s;
+}
+.field textarea{resize:vertical;min-height:90px;line-height:1.55;}
+.field input:focus,.field textarea:focus{border-color:var(--pink-deep);}
+.field input[type=file]{font-size:.85rem;}
+.code-preview{margin-top:8px;padding:10px 14px;border-radius:12px;background:rgba(233,139,167,.12);font-weight:800;color:var(--pink-deep);font-size:.92rem;text-align:center;}
+.form-row{display:flex;justify-content:center;gap:10px;margin-top:22px;flex-wrap:wrap;}
+.form-note{font-size:.8rem;color:var(--ink-soft);text-align:center;margin-top:12px;font-weight:600;line-height:1.5;}
+.upload-hint{font-size:.78rem;color:var(--ink-soft);font-weight:600;margin-top:4px;}
+
+/* ============ BUTTONS ============ */
+.btn{font-family:var(--body);font-weight:800;font-size:1.05rem;color:#fff;padding:15px 30px;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(120deg,var(--pink-deep),#b58ad0);box-shadow:0 12px 26px rgba(233,139,167,.4);transition:transform .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 32px rgba(233,139,167,.5);}
+.btn:active{transform:scale(.96);}
+.btn.ghost{background:var(--glass);color:var(--ink);box-shadow:0 6px 18px rgba(180,140,160,.18);}
+.fade-up{animation:screenIn .8s ease both;}
+
+/* ============ UNLOCK / GIFT ============ */
+.glow{animation:glow 1.6s ease infinite alternate;}
+@keyframes glow{from{filter:drop-shadow(0 0 12px rgba(255,220,170,.5));}to{filter:drop-shadow(0 0 34px rgba(255,210,150,.95));}}
+.big{font-family:var(--head);font-size:clamp(2rem,7vw,3rem);font-weight:600;}
+.gift-scene{position:relative;width:220px;height:200px;margin:0 auto 10px;}
+.giftbox{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:150px;height:120px;cursor:pointer;}
+.gift-shake{animation:giftShake 1.4s ease-in-out infinite;}
+@keyframes giftShake{0%,100%{transform:translateX(-50%) rotate(0);}25%{transform:translateX(-52%) rotate(-3deg);}75%{transform:translateX(-48%) rotate(3deg);}}
+.gift-base{position:absolute;bottom:0;width:150px;height:92px;left:0;background:linear-gradient(160deg,#f6b8cc,#e58bab);border-radius:12px;box-shadow:var(--shadow);}
+.gift-ribbon-v{position:absolute;left:50%;transform:translateX(-50%);width:26px;height:92px;bottom:0;background:linear-gradient(180deg,#f2d9a6,#e6bd7d);}
+.gift-lid{position:absolute;top:14px;left:0;width:162px;height:44px;left:-6px;background:linear-gradient(160deg,#f9c6d7,#ee9fbd);border-radius:12px;box-shadow:0 8px 16px rgba(0,0,0,.12);z-index:2;transition:transform .8s cubic-bezier(.2,.8,.3,1);}
+.gift-lid .bow{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:40px;line-height:1;transition:transform .8s;z-index:3;}
+.giftbox.open .gift-lid{transform:translateY(-46px) rotate(-12deg) translateX(14px);}
+.giftbox.open .bow{transform:translateX(-50%) translateY(-14px) scale(1.2);opacity:.5;}
+.rays{position:absolute;inset:-30px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .6s;}
+.sparkle{position:absolute;font-size:20px;animation:spark 1.4s ease-in-out infinite;}
+@keyframes spark{0%,100%{opacity:0;transform:scale(.4) rotate(0);}50%{opacity:1;transform:scale(1.15) rotate(20deg);}}
+
+/* ============ PROGRESS ============ */
+.progress{position:absolute;top:18px;right:20px;z-index:5;font-weight:800;color:var(--ink-soft);font-size:.9rem;letter-spacing:1px;}
+.pips{display:flex;justify-content:center;gap:8px;margin:22px auto 0;}
+.pip{width:9px;height:9px;border-radius:50%;background:rgba(233,139,167,.25);transition:all .3s;}
+.pip.on{background:var(--pink-deep);transform:scale(1.3);box-shadow:0 0 0 4px rgba(233,139,167,.16);}
+
+/* ============ CARDS / LETTER ============ */
+.paper-card{background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 24px;border:1px solid rgba(255,255,255,.6);text-align:left;}
+.letter-text{font-size:1.02rem;line-height:1.85;color:#5c4c55;white-space:pre-wrap;}
+.letter-text p{margin-bottom:14px;}
+.letter-text p:last-child{margin-bottom:0;}
+.eyebrow{font-family:var(--body);font-weight:800;font-size:.78rem;letter-spacing:2.5px;color:var(--pink-deep);text-transform:uppercase;margin-bottom:10px;}
+.section-title{font-family:var(--head);font-size:clamp(1.8rem,6vw,2.4rem);font-weight:600;margin-bottom:14px;}
+.lead{color:var(--ink-soft);line-height:1.6;font-size:1.02rem;margin-bottom:22px;font-weight:600;}
+
+/* ============ MEMORY REVEAL ============ */
+.memory-stage{min-height:270px;display:flex;align-items:center;justify-content:center;margin-top:18px;flex-direction:column;}
+.memory-polaroid{background:#fff;padding:10px 10px 14px;border-radius:10px;box-shadow:0 14px 34px rgba(140,110,130,.3);max-width:260px;width:100%;display:none;}
+.memory-polaroid.show{display:block;animation:memIn .6s cubic-bezier(.2,.8,.3,1);}
+@keyframes memIn{0%{opacity:0;transform:rotate(-8deg) scale(.7) translateY(26px);}100%{opacity:1;transform:rotate(-2deg) scale(1);}}
+.memory-polaroid .img{width:100%;aspect-ratio:1;border-radius:4px;overflow:hidden;background:linear-gradient(135deg,#f6dfe8,#dfe0f4);}
+.memory-polaroid .img img{width:100%;height:100%;object-fit:cover;}
+.memory-polaroid .cap{margin-top:10px;text-align:center;font-family:var(--head);font-weight:600;color:var(--ink-soft);font-size:.9rem;}
+.memory-done{color:var(--pink-deep);font-weight:800;font-size:.98rem;margin-top:12px;animation:screenIn .5s ease;}
+
+/* ============ WISH CARDS ============ */
+.wish{background:linear-gradient(150deg,rgba(255,255,255,.85),rgba(255,240,246,.7));border:1px solid rgba(233,139,167,.2);border-radius:20px;padding:20px 22px;margin-bottom:14px;box-shadow:0 8px 22px rgba(180,140,160,.14);text-align:left;opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;}
+.wish.show{opacity:1;transform:none;}
+.wish .ico{font-size:1.6rem;margin-bottom:6px;}
+.wish h4{font-family:var(--head);font-size:1.25rem;font-weight:600;margin-bottom:4px;}
+.wish p{color:var(--ink-soft);line-height:1.6;font-size:.98rem;font-weight:600;}
+
+/* ============ HIDDEN SURPRISE ============ */
+.envelope{width:120px;height:80px;margin:10px auto 22px;position:relative;cursor:pointer;background:linear-gradient(160deg,#f4cfdd,#e8a9c2);border-radius:8px;box-shadow:var(--shadow);transition:transform .3s;}
+.envelope:hover{transform:translateY(-4px);}
+.envelope::before{content:"🎀";position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:34px;}
+.reveal-box{display:none;background:var(--glass);backdrop-filter:blur(10px);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.6);margin-top:8px;}
+.reveal-box.show{display:block;animation:screenIn .7s ease;}
+
+/* ============ CAKE ============ */
+.cake-stage{position:relative;height:250px;display:flex;align-items:flex-end;justify-content:center;}
+.cake{position:relative;width:220px;height:160px;background:linear-gradient(180deg,#fbe7ef,#f2c8d8);border-radius:18px 18px 8px 8px;box-shadow:var(--shadow);}
+.cake::before{content:"";position:absolute;top:18px;left:0;width:100%;height:34px;background:linear-gradient(180deg,#fff,#ffeef4);border-radius:12px;}
+.cake::after{content:"";position:absolute;top:34px;left:50%;transform:translateX(-50%);width:16px;height:6px;background:var(--gold);border-radius:3px;box-shadow:34px 0 var(--gold),-34px 0 var(--gold);}
+.candles{position:absolute;top:-34px;left:50%;transform:translateX(-50%);display:flex;gap:16px;z-index:2;}
+.candle{position:relative;width:14px;height:34px;background:linear-gradient(180deg,#fff, #f3d9e3);border-radius:5px 5px 2px 2px;cursor:pointer;transition:opacity .4s;}
+.candle::before{content:"🔥";position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:20px;transition:opacity .4s,transform .4s;}
+.candle.out{opacity:.25;}
+.candle.out::before{content:"💨";opacity:1;animation:smoke .8s ease forwards;}
+@keyframes smoke{from{opacity:1;transform:translateX(-50%) translateY(0);}to{opacity:0;transform:translateX(-50%) translateY(-22px);}}
+.cake-scene.dark{transition:filter 1.2s;filter:brightness(.55) saturate(.85);}
+.cake-scene.glow{transition:filter 1s;filter:none;}
+
+/* ============ ONE LAST SURPRISE OVERLAY ============ */
+.surprise-overlay{position:fixed;inset:0;z-index:80;background:linear-gradient(160deg,#fff7ee,#f6edfb);display:none;align-items:center;justify-content:center;text-align:center;padding:24px;}
+.surprise-overlay.show{display:flex;animation:screenIn .6s ease;}
+.sor-icon{font-size:56px;margin-bottom:16px;animation:bearBob 2.6s ease-in-out infinite;}
+.sor-text{font-family:var(--head);font-size:clamp(1.6rem,6vw,2.2rem);font-weight:600;color:var(--ink);line-height:1.4;}
+.sor-msg{margin-top:14px;color:var(--ink-soft);font-weight:600;font-size:1.05rem;}
+.sor-fade{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.sor-float{position:absolute;animation:floatUp linear infinite;opacity:.55;}
+
+/* ============ CONFETTI ============ */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden;}
+.piece{position:absolute;top:-20px;width:9px;height:14px;opacity:.9;animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);}}
+
+/* ============ MUSIC ============ */
+.music-btn{position:fixed;top:18px;left:18px;z-index:50;border:none;cursor:pointer;background:var(--glass);backdrop-filter:blur(8px);padding:11px 14px;border-radius:50px;font-family:var(--body);font-weight:800;font-size:.9rem;color:var(--ink);box-shadow:0 6px 16px rgba(180,140,160,.18);display:flex;align-items:center;gap:7px;transition:transform .2s;display:none;}
+.music-btn:hover{transform:scale(1.06);}
+.music-btn.on{background:linear-gradient(120deg,var(--pink-deep),#b58ad0);color:#fff;}
+
+.hidden{display:none !important;}
+.center{text-align:center;}
+.mt{margin-top:22px;}
+</style>
+</head>
+<body>
+
+<!-- AMBIENT FLOATING BACKGROUND -->
+<div class="ambient" id="ambient"></div>
+
+<!-- MUSIC TOGGLE -->
+<button class="music-btn" id="musicBtn" title="Music">♫ Music</button>
+
+<!-- ================= LOCK SCREEN ================= -->
+<section class="screen active" id="screen-lock">
+  <div class="bunting">
+    <span class="flag"></span><span class="flag"></span><span class="flag"></span>
+    <span class="flag"></span><span class="flag"></span><span class="flag"></span>
+    <span class="flag"></span><span class="flag"></span><span class="flag"></span>
+    <span class="flag"></span><span class="flag"></span><span class="flag"></span>
+    <span class="flag"></span><span class="flag"></span><span class="flag"></span>
+    <span class="flag"></span><span class="flag"></span><span class="flag"></span>
+  </div>
+  <div class="wrap">
+    <div class="bear" id="bear">🧸</div>
+    <h1 class="lock-title">Unlock Your Surprise</h1>
+    <p class="lock-sub">Enter the secret code to begin</p>
+
+    <div class="dots" id="dots"></div>
+    <p class="lock-msg" id="lockMsg"></p>
+
+    <div class="keypad" id="keypad">
+      <button class="key" data-n="1">1</button>
+      <button class="key" data-n="2">2</button>
+      <button class="key" data-n="3">3</button>
+      <button class="key" data-n="4">4</button>
+      <button class="key" data-n="5">5</button>
+      <button class="key" data-n="6">6</button>
+      <button class="key" data-n="7">7</button>
+      <button class="key" data-n="8">8</button>
+      <button class="key" data-n="9">9</button>
+      <button class="key ctrl" id="clearBtn" title="Clear">C</button>
+      <button class="key" data-n="0">0</button>
+      <button class="key ctrl" id="backBtn" title="Backspace">⌫</button>
+    </div>
+
+    <p class="hint">Hint: It’s the date that deserves to be celebrated the most. 🎂</p>
+    <button class="create-link" id="createLink">✨ Create your own surprise</button>
+  </div>
+</section>
+
+<!-- ================= CREATOR ================= -->
+<section class="screen" id="screen-create">
+  <div class="creator wrap">
+    <div class="creator-head">
+      <h1 class="creator-title">Create a Surprise 🎁</h1>
+      <p class="lead" style="margin-top:6px;">Personalize it, then hand it over. The recipient enters a 6-digit code to unlock.</p>
+    </div>
+
+    <div class="field"><label>Recipient’s name</label><input type="text" id="cName" placeholder="e.g. Ananya"></div>
+    <div class="field"><label>Your name</label><input type="text" id="cCreator" placeholder="e.g. Akarsh"></div>
+    <div class="field"><label>Recipient’s birthday <span class="lbl-note">(generates the 6-digit code)</span></label>
+      <input type="date" id="cBirthday">
+      <div class="code-preview" id="cCodePreview"></div>
+    </div>
+
+    <div class="field"><label>Birthday letter <span class="lbl-note">(blank line = new paragraph, auto-split into pages)</span></label>
+      <textarea id="cLetter" rows="6"></textarea></div>
+
+    <div class="field"><label>Hidden surprise message</label><textarea id="cHidden" rows="3"></textarea></div>
+
+    <div class="field"><label>Final message <span class="lbl-note">(shown in "One Last Surprise")</span></label>
+      <textarea id="cFinal" rows="2"></textarea></div>
+
+    <div class="field"><label>Wishes <span class="lbl-note">(one per line, format: emoji|Title|Message)</span></label>
+      <textarea id="cWishes" rows="6"></textarea></div>
+
+    <div class="field"><label>Add photos <span class="lbl-note">(tap the memories to reveal them)</span></label>
+      <input type="file" id="cPhotos" accept="image/*" multiple>
+      <div class="upload-hint" id="cPhotoCount">0 photos added</div></div>
+
+    <div class="field"><label>Background music <span class="lbl-note">(optional; otherwise a built-in cheerful tune plays)</span></label>
+      <input type="file" id="cMusic" accept="audio/*">
+      <div class="upload-hint" id="cMusicName">Using built-in melody</div></div>
+
+    <div class="form-row">
+      <button class="btn ghost" id="createCancel">Cancel</button>
+      <button class="btn" id="createSave">Save &amp; Apply ✨</button>
+    </div>
+    <p class="form-note">Music never autoplays. The recipient taps ♫ to start it after unlocking.</p>
+  </div>
+</section>
+
+<!-- ================= UNLOCK / GIFT ================= -->
+<section class="screen" id="screen-unlock">
+  <div class="wrap center">
+    <h1 class="big glow" id="unlockTitle">Unlocked! ✨</h1>
+    <p class="lead" id="unlockSub">Your birthday surprise is ready.</p>
+    <div class="gift-scene" id="giftScene">
+      <div class="giftbox" id="giftbox">
+        <div class="gift-lid"><span class="bow">🎀</span></div>
+        <div class="gift-ribbon-v"></div>
+        <div class="gift-base"></div>
+      </div>
+      <div class="rays" id="rays">
+        <span class="sparkle" style="top:10%;left:18%;">✨</span>
+        <span class="sparkle" style="top:24%;right:16%;animation-delay:.4s">✨</span>
+        <span class="sparkle" style="bottom:26%;left:10%;animation-delay:.8s">✨</span>
+        <span class="sparkle" style="bottom:22%;right:10%;animation-delay:1s">✨</span>
+      </div>
+    </div>
+    <button class="btn mt" id="openSurpriseBtn" style="opacity:0;pointer-events:none;">Open My Surprise →</button>
+  </div>
+</section>
+
+<!-- ================= INTRO ================= -->
+<section class="screen" id="screen-intro">
+  <div class="wrap center">
+    <div style="font-size:60px;animation:bearBob 3.4s ease-in-out infinite;">🎂🤍</div>
+    <h1 class="big" style="margin:16px 0 8px;">Happy Birthday!</h1>
+    <p class="lead">Today is your day.<br>So I made you a little something.</p>
+    <button class="btn mt" id="beginBtn">Let’s Begin →</button>
+  </div>
+</section>
+
+<!-- ================= JOURNEY ================= -->
+<section class="screen" id="screen-journey">
+  <div class="progress" id="progress"></div>
+  <div class="pips" id="pips"></div>
+  <div class="wrap" style="padding-top:20px;">
+
+    <!-- PAGE 1 : REVEAL -->
+    <div class="journey-page" id="jp1">
+      <div class="center">
+        <h1 class="section-title" style="font-size:clamp(2rem,7vw,2.8rem);">Happy Birthday, <span id="herName1">HER NAME</span> 🤍</h1>
+        <p class="lead">Another year, another chapter, another reason to smile.</p>
+        <button class="btn" data-nav="next">Continue →</button>
+      </div>
+    </div>
+
+    <!-- PAGE 2 : LETTER -->
+    <div class="journey-page" id="jp2" style="display:none;">
+      <div class="center">
+        <p class="eyebrow">Page <span id="letterPageNum">1</span> of <span id="letterPageCount">1</span></p>
+        <h2 class="section-title">A Little Something For You 💌</h2>
+      </div>
+      <div class="paper-card" id="letterCard"></div>
+      <div class="center mt">
+        <button class="btn ghost" data-nav="back">Go Back</button>
+        <button class="btn" id="letterNext" style="margin-left:10px;">Read More →</button>
+      </div>
+    </div>
+
+    <!-- PAGE 3 : MEMORIES (reveal) -->
+    <div class="journey-page" id="jp3" style="display:none;">
+      <div class="center">
+        <p class="eyebrow">Little Moments</p>
+        <h2 class="section-title">Little Moments 📸</h2>
+        <p class="lead" style="font-size:.95rem;">Tap to open a memory, one at a time.</p>
+        <button class="btn" id="openMemoryBtn">Open a Memory 📸</button>
+      </div>
+      <div class="memory-stage" id="memoryStage"></div>
+      <div class="center mt">
+        <button class="btn ghost" data-nav="back">Go Back</button>
+        <button class="btn" data-nav="next" style="margin-left:10px;">Continue →</button>
+      </div>
+    </div>
+
+    <!-- PAGE 4 : WISHES -->
+    <div class="journey-page" id="jp4" style="display:none;">
+      <div class="center">
+        <p class="eyebrow">For You, Always</p>
+        <h2 class="section-title">For You, Always 🌷</h2>
+      </div>
+      <div id="wishes" style="max-width:440px;margin:0 auto;"></div>
+      <div class="center mt">
+        <button class="btn ghost" data-nav="back">Go Back</button>
+        <button class="btn" data-nav="next" style="margin-left:10px;">Continue →</button>
+      </div>
+    </div>
+
+    <!-- PAGE 5 : HIDDEN SURPRISE -->
+    <div class="journey-page" id="jp5" style="display:none;">
+      <div class="center">
+        <p class="eyebrow">One More Thing</p>
+        <h2 class="section-title">Wait… There’s One More Thing 👀</h2>
+      </div>
+      <div class="envelope" id="envelope" title="Tap to open"></div>
+      <div class="center">
+        <button class="btn" id="openItBtn">Open It 🎁</button>
+      </div>
+      <div class="reveal-box" id="revealBox">
+        <p id="hiddenMsg" style="font-family:var(--head);font-size:1.25rem;line-height:1.7;text-align:center;"></p>
+      </div>
+      <div class="center mt">
+        <button class="btn ghost" data-nav="back">Go Back</button>
+        <button class="btn" data-nav="next" style="margin-left:10px;">Continue →</button>
+      </div>
+    </div>
+
+    <!-- PAGE 6 : CAKE -->
+    <div class="journey-page" id="jp6" style="display:none;">
+      <div class="center">
+        <p class="eyebrow">Make a Wish</p>
+        <h2 class="section-title" style="margin-bottom:4px;">Make a wish. ✨</h2>
+        <p class="lead" style="font-size:.95rem;">Tap the candles to blow them out.</p>
+      </div>
+      <div class="cake-scene" id="cakeScene">
+        <div class="cake-stage">
+          <div class="cake" id="cake">
+            <div class="candles" id="candles">
+              <div class="candle" data-i="0"></div>
+              <div class="candle" data-i="1"></div>
+              <div class="candle" data-i="2"></div>
+            </div>
+          </div>
+        </div>
+        <div class="center" id="cakeMsg">
+          <p class="lead" style="display:none;" id="cakeLine1">I hope this year gives you more reasons to smile.</p>
+          <p class="big" style="display:none;margin-top:8px;" id="cakeLine2">Happy Birthday, <span id="cakeName">HER NAME</span>! 🎂🤍</p>
+        </div>
+      </div>
+      <div class="center mt">
+        <button class="btn ghost" data-nav="back">Go Back</button>
+        <button class="btn" id="lastSurpriseBtn" style="margin-left:10px;display:none;">One Last Surprise ✨</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= ONE LAST SURPRISE OVERLAY ================= -->
+<div class="surprise-overlay" id="surpriseOverlay">
+  <div class="sor-fade" id="sorFade"></div>
+  <div style="position:relative;z-index:2;">
+    <div class="sor-icon">🎁</div>
+    <div class="sor-text">One last thing before you go…</div>
+    <div class="sor-msg" id="sorMsg"></div>
+    <button class="btn mt" id="sorContinue">To the Finale →</button>
+  </div>
+</div>
+
+<!-- ================= FINAL ================= -->
+<section class="screen" id="screen-final">
+  <div class="wrap center">
+    <h1 class="big" style="font-size:clamp(1.7rem,6vw,2.4rem);">I hope this little surprise made your day a little more special.</h1>
+    <p class="lead" style="margin-top:18px;">Thank you for being you. 🤍</p>
+    <p style="font-family:var(--head);font-size:1.3rem;margin-top:30px;color:var(--ink-soft);">— <span id="signature">Akarsh</span> |</p>
+  </div>
+</section>
+
+<!-- CONFETTI LAYER -->
+<div class="confetti" id="confetti"></div>
+
+<script>
+/* =====================================================================
+   ✏️  DEFAULTS — edit these in the file, OR use the on-screen
+       "Create your own surprise" wizard (no code needed).
+   ===================================================================== */
+const DEFAULTS = {
+  herName: "HER NAME",                 // recipient's name
+  creatorName: "Akarsh",               // your name (signature)
+  birthday: "2009-12-25",              // yyyy-mm-dd → code becomes DDMMYY (6 digits)
+
+  // Letter (blank line between paragraphs = new page card automatically)
+  letter: `I know words can never fully capture how much you mean to me, but I wanted to try.
+
+From the moment you became part of my life, things felt a little brighter, a little softer, and a whole lot more real. You have this quiet way of making ordinary days feel special, and I don't think you even realize it.
+
+Thank you for being patient when I ramble, for laughing at my worst jokes, and for sticking around through the not-so-pretty days too. You are one of the most genuine people I know, and I hope you never forget how valued you are.
+
+On your birthday, I just want you to feel how much you are seen, how much you are loved, and how grateful I am that you exist.
+
+So here's to you — to another year of growth, of joy, of dreams slowly becoming real. I'll be here, cheering for you, always.`,
+
+  hiddenMessage: `Hey you. If you're reading this, you made it to the very end of your surprise — and I'm smiling thinking about it.
+
+I just wanted you to know that no matter what life throws at you, you'll always have someone in your corner. Someone who genuinely believes in you, celebrates you, and is endlessly proud to know you.
+
+Happy birthday, truly. Here's to all the beautiful things still coming your way. 🤍`,
+
+  finalMessage: `You made it to the very end — I'm so glad you did. Thank you for being exactly who you are. Here's to you, today and always. 🤍`,
+
+  // Photos: each {img, caption}. Leave img:"" for a pretty placeholder.
+  // Delete ALL entries (memories: []) to hide the "Little Moments" section entirely.
+  memories: [
+    { img: "", caption: "Some moments deserve to stay forever." },
+    { img: "", caption: "Just a little memory I wanted to keep here." },
+    { img: "", caption: "Sunshine looks good on you." },
+    { img: "", caption: "A favorite little chapter of ours." },
+  ],
+
+  wishes: [
+    { ico: "😊", title: "Happiness",      text: "May your days be filled with the quiet, gentle kind of joy that stays with you long after it passes." },
+    { ico: "🕊️", title: "Peace",          text: "May your heart find calm on the noisy days, and may you always feel safe and at ease." },
+    { ico: "🌱", title: "Success",        text: "May every dream you hold find a way to grow into something real and beautiful." },
+    { ico: "💛", title: "Good Health",    text: "May your body and mind stay strong, rested, and cared for — you deserve to feel your best." },
+    { ico: "🌟", title: "Dreams Coming True", text: "May the things you wish for tonight find their way to you, one gentle step at a time." },
+    { ico: "🫶", title: "Strength",       text: "On the hard days, may you remember you are braver and stronger than you give yourself credit for." },
+    { ico: "🤍", title: "People Who Care", text: "May you always be surrounded by the people who truly see you and love you for exactly who you are." },
+    { ico: "📖", title: "New Memories",   text: "May this year write chapters you'll look back on and smile about." },
+  ],
+
+  musicUrl: "",   // set automatically if the creator uploads an audio file
+};
+
+/* =====================================================================
+   RUNTIME
+   ===================================================================== */
+const $ = (s)=>document.querySelector(s);
+const $$ = (s)=>[...document.querySelectorAll(s)];
+
+/* --- config load/save (persists across refresh) --- */
+let CONFIG;
+function loadConfig(){
+  let saved=null;
+  try{ saved=JSON.parse(localStorage.getItem('bday-surprise-config')); }catch(e){}
+  const base=JSON.parse(JSON.stringify(DEFAULTS));
+  if(saved){ Object.keys(base).forEach(k=>{ if(saved[k]!==undefined) base[k]=saved[k]; }); }
+  return base;
+}
+function saveConfig(){ try{ localStorage.setItem('bday-surprise-config',JSON.stringify(CONFIG)); }catch(e){ console.warn("Could not persist config (likely too large).",e); } }
+CONFIG = loadConfig();
+
+/* --- birthday → 6-digit DDMMYY code --- */
+function birthdayToCode(dateStr){
+  const parts=(dateStr||"").split("-");
+  if(parts.length!==3) return "010101";
+  const y=+parts[0], m=+parts[1], d=+parts[2];
+  const dd=String(d).padStart(2,"0"), mm=String(m).padStart(2,"0"), yy=String(y).slice(-2);
+  return dd+mm+yy;
+}
+let SECRET = birthdayToCode(CONFIG.birthday);
+const CODE_LEN = 6;
+
+/* --- ambient floaters --- */
+function spawnAmbient(){
+  const icons=["✨","💖","🎈","⭐","🫧","🤍","🌸"];
+  for(let i=0;i<14;i++){
+    const s=document.createElement("span");
+    s.className="floater"; s.textContent=icons[i%icons.length];
+    s.style.left=Math.random()*100+"%";
+    s.style.fontSize=(12+Math.random()*20)+"px";
+    s.style.animationDuration=(9+Math.random()*10)+"s";
+    s.style.animationDelay=(-Math.random()*12)+"s";
+    s.style.opacity=.25+Math.random()*.3;
+    $("#ambient").appendChild(s);
+  }
+}
+
+/* --- confetti --- */
+const CONF_COLORS=["#e98ba7","#b58ad0","#e8c27a","#ffd9b8","#f5c6d6","#9fd0c9"];
+function confettiBurst(n=90){
+  const box=$("#confetti");
+  for(let i=0;i<n;i++){
+    const p=document.createElement("div");
+    p.className="piece";
+    p.style.left=Math.random()*100+"%";
+    p.style.background=CONF_COLORS[i%CONF_COLORS.length];
+    p.style.animationDuration=(2.4+Math.random()*2.4)+"s";
+    p.style.animationDelay=(Math.random()*1.2)+"s";
+    box.appendChild(p);
+    setTimeout(()=>p.remove(),6000);
+  }
+}
+
+/* --- screen switching --- */
+function showScreen(id){
+  $$(".screen").forEach(s=>s.classList.remove("active"));
+  $("#"+id).classList.add("active");
+  $("#musicBtn").style.display=(id==="lock"||id==="create")?"none":"flex";
+  window.scrollTo({top:0,behavior:"instant"});
+}
+
+/* =====================================================================
+   LOCK SCREEN
+   ===================================================================== */
+let code="";
+const dotsEl=$("#dots");
+for(let i=0;i<CODE_LEN;i++){ const d=document.createElement("div"); d.className="dot"; dotsEl.appendChild(d); }
+function renderDots(){ $$("#dots .dot").forEach((d,i)=>d.classList.toggle("filled",i<code.length)); }
+function setMsg(t){ $("#lockMsg").textContent=t||""; }
+
+$("#keypad").addEventListener("click",e=>{
+  const btn=e.target.closest(".key"); if(!btn) return;
+  if(btn.id==="clearBtn"){ code=""; renderDots(); setMsg(""); return; }
+  if(btn.id==="backBtn"){ code=code.slice(0,-1); renderDots(); setMsg(""); return; }
+  const n=btn.dataset.n; if(n===undefined||code.length>=CODE_LEN) return;
+  code+=n; renderDots();
+  if(code.length===CODE_LEN){
+    setTimeout(()=>{
+      if(code===SECRET) handleCorrect();
+      else handleWrong();
+    },220);
+  }
+});
+
+function handleWrong(){
+  $("#dots").classList.add("shake");
+  setMsg("Hmm… not quite! Try again, birthday girl. 🤭");
+  $$("#dots .dot").forEach(d=>d.classList.add("error"));
+  setTimeout(()=>{
+    $("#dots").classList.remove("shake");
+    $$("#dots .dot").forEach(d=>d.classList.remove("error"));
+    code=""; renderDots(); setMsg("");
+  },900);
+}
+function handleCorrect(){
+  $("#dots").classList.add("shake");
+  setMsg("Unlocked! ✨");
+  setTimeout(()=>{
+    $$(".screen").forEach(s=>s.classList.remove("active"));
+    $("#screen-unlock").classList.add("active");
+    $("#musicBtn").style.display="flex";
+    window.scrollTo({top:0});
+    playUnlockSequence();
+  },700);
+}
+
+/* --- unlock / gift sequence --- */
+function playUnlockSequence(){
+  confettiBurst(60);
+  setTimeout(()=>{
+    const box=$("#giftbox");
+    box.classList.add("gift-shake");
+    setTimeout(()=>{ box.classList.remove("gift-shake"); box.classList.add("open"); $("#rays").style.opacity=1; confettiBurst(70); },1500);
+    setTimeout(()=>{
+      const b=$("#openSurpriseBtn");
+      b.style.opacity="1"; b.style.pointerEvents="auto"; b.classList.add("fade-up");
+    },2600);
+  },500);
+}
+$("#openSurpriseBtn").addEventListener("click",()=>{ confettiBurst(50); showScreen("screen-intro"); });
+$("#beginBtn").addEventListener("click",()=>{ curKey=activeKeys()[0]; renderJourney(); showScreen("screen-journey"); });
+
+/* =====================================================================
+   JOURNEY (dynamic pages — memories auto-hides when no photos)
+   ===================================================================== */
+const KEYS=["reveal","letter","memories","wishes","hidden","cake"];
+function hasPhotos(){ return CONFIG.memories.length>0; }
+function activeKeys(){ return KEYS.filter(k=> k!=="memories" || hasPhotos()); }
+let curKey;
+
+function renderPips(curIdx){
+  const keys=activeKeys();
+  $("#pips").innerHTML = keys.map((k,i)=>`<span class="pip ${i===curIdx?'on':''}"></span>`).join("");
+  $("#progress").textContent = `0${curIdx+1} / 0${keys.length}`;
+}
+function goNext(){
+  const keys=activeKeys(); const i=keys.indexOf(curKey);
+  if(i<keys.length-1) goToKey(keys[i+1]);
+}
+function goBack(){
+  const keys=activeKeys(); const i=keys.indexOf(curKey);
+  if(i>0) goToKey(keys[i-1]);
+}
+function goToKey(k){
+  curKey=k; renderJourney();
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-nav]");
+  if(!b) return;
+  e.preventDefault();
+  if(b.dataset.nav==="next") goNext(); else goBack();
+});
+
+function renderJourney(){
+  const idx=activeKeys().indexOf(curKey);
+  renderPips(Math.max(idx,0));
+  $$(".journey-page").forEach(p=>p.style.display="none");
+  const el=document.getElementById("jp"+(KEYS.indexOf(curKey)+1));
+  if(el){ el.style.display="block"; el.classList.add("fade-up"); }
+
+  if(curKey==="reveal"){ $("#herName1").textContent=CONFIG.herName; }
+  if(curKey==="letter"){ letterPage=0; renderLetter(); }
+  if(curKey==="memories"){ memIndex=-1; renderMemoryStage(); }
+  if(curKey==="wishes"){ renderWishes(); }
+  if(curKey==="hidden"){ $("#revealBox").classList.remove("show"); $("#openItBtn").textContent="Open It 🎁"; }
+  if(curKey==="cake"){ resetCake(); }
+}
+
+/* --- letter (auto-split) --- */
+let letterPage=0, letterPages=[];
+function splitLetter(){
+  const paras=CONFIG.letter.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
+  const per=3; letterPages=[];
+  for(let i=0;i<paras.length;i+=per) letterPages.push(paras.slice(i,i+per));
+  if(!letterPages.length) letterPages=[["(Your letter will appear here.)"]];
+}
+function renderLetter(){
+  $("#letterPageCount").textContent=letterPages.length;
+  $("#letterPageNum").textContent=letterPage+1;
+  $("#letterCard").innerHTML="<div class='letter-text'>"+letterPages[letterPage].map(p=>`<p>${p}</p>`).join("")+"</div>";
+  const last=letterPage>=letterPages.length-1;
+  $("#letterNext").textContent=last?"Continue →":"Read More →";
+}
+$("#letterNext").addEventListener("click",()=>{
+  if(letterPage<letterPages.length-1){ letterPage++; renderLetter(); }
+  else goNext();
+});
+
+/* --- memory reveal --- */
+function phSVG(){
+  return "data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#f6dfe8'/><stop offset='1' stop-color='#dfe0f4'/></linearGradient></defs><rect width='300' height='300' fill='url(#g)'/><text x='150' y='172' font-size='72' text-anchor='middle'>📷</text></svg>`);
+}
+let memIndex=-1;
+function renderMemoryStage(){
+  const stage=$("#memoryStage"); stage.innerHTML="";
+  $("#openMemoryBtn").textContent="Open a Memory 📸";
+  if(!hasPhotos()){ stage.innerHTML=`<p class="memory-done">No photos added yet — the creator can add some. 📸</p>`; return; }
+}
+$("#openMemoryBtn").addEventListener("click",()=>{
+  if(!hasPhotos()) return;
+  const stage=$("#memoryStage");
+  memIndex=(memIndex+1)%CONFIG.memories.length;
+  const m=CONFIG.memories[memIndex];
+  stage.innerHTML=`<div class="memory-polaroid show"><div class="img"><img src="${m.img||phSVG()}" alt="memory" loading="lazy"></div><div class="cap">${m.caption}</div></div>
+    <div class="memory-done">${memIndex+1} of ${CONFIG.memories.length}</div>`;
+  $("#openMemoryBtn").textContent = (memIndex===CONFIG.memories.length-1) ? "Again 🔁" : "Next Memory →";
+});
+
+/* --- wishes --- */
+function renderWishes(){
+  const box=$("#wishes"); box.innerHTML="";
+  CONFIG.wishes.forEach(w=>{
+    const c=document.createElement("div"); c.className="wish";
+    c.innerHTML=`<div class="ico">${w.ico}</div><h4>${w.title}</h4><p>${w.text}</p>`;
+    box.appendChild(c);
+  });
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add("show"); obs.unobserve(en.target);} });
+  },{threshold:.2});
+  setTimeout(()=>$$("#wishes .wish").forEach(w=>obs.observe(w)),50);
+}
+
+/* =====================================================================
+   HIDDEN SURPRISE
+   ===================================================================== */
+$("#openItBtn").addEventListener("click",()=>{
+  const box=$("#revealBox");
+  box.classList.toggle("show");
+  if(box.classList.contains("show")){
+    $("#hiddenMsg").textContent=CONFIG.hiddenMessage;
+    confettiBurst(40);
+    $("#openItBtn").textContent="Hide 🎀";
+  } else $("#openItBtn").textContent="Open It 🎁";
+});
+
+/* =====================================================================
+   CAKE + CANDLES (Make a Wish)
+   ===================================================================== */
+let candlesOut=0;
+function resetCake(){
+  candlesOut=0;
+  $$("#candles .candle").forEach(c=>c.classList.remove("out"));
+  $("#cakeMsg").querySelectorAll("p").forEach(p=>p.style.display="none");
+  $("#lastSurpriseBtn").style.display="none";
+  $("#cakeScene").classList.remove("dark","glow");
+  $("#cakeName").textContent=CONFIG.herName;
+}
+$("#candles").addEventListener("click",e=>{
+  const c=e.target.closest(".candle"); if(!c||c.classList.contains("out")) return;
+  c.classList.add("out"); candlesOut++;
+  if(candlesOut===$$("#candles .candle").length){
+    $("#cakeScene").classList.add("dark");
+    setTimeout(()=>{
+      $("#cakeScene").classList.remove("dark"); $("#cakeScene").classList.add("glow");
+      confettiBurst(80);
+      $("#cakeLine1").style.display="block";
+      setTimeout(()=>{
+        $("#cakeLine2").style.display="block";
+        $("#lastSurpriseBtn").style.display="inline-flex";
+      },1400);
+    },1300);
+  }
+});
+
+/* =====================================================================
+   ONE LAST SURPRISE
+   ===================================================================== */
+$("#lastSurpriseBtn").addEventListener("click",showLastSurprise);
+function showLastSurprise(){
+  $("#sorMsg").textContent=CONFIG.finalMessage;
+  confettiBurst(90);
+  const fade=$("#sorFade"); fade.innerHTML="";
+  const icons=["💖","⭐","✨","🎈","🤍","🌸"];
+  for(let i=0;i<22;i++){
+    const s=document.createElement("span"); s.className="sor-float"; s.textContent=icons[i%icons.length];
+    s.style.left=Math.random()*100+"%";
+    s.style.fontSize=(12+Math.random()*22)+"px";
+    s.style.animationDuration=(7+Math.random()*9)+"s";
+    s.style.animationDelay=(-Math.random()*8)+"s";
+    fade.appendChild(s);
+  }
+  $("#surpriseOverlay").classList.add("show");
+}
+$("#sorContinue").addEventListener("click",()=>{
+  $("#surpriseOverlay").classList.remove("show");
+  confettiBurst(70);
+  $("#signature").textContent=CONFIG.creatorName;
+  showScreen("screen-final");
+});
+
+/* =====================================================================
+   MUSIC (never autoplays; continues across sections)
+   ===================================================================== */
+let musicOn=false, musicTimer=null, audioCtx=null, audioEl=null;
+const MELODY=[523.25,659.25,783.99,659.25,587.33,783.99,880.0,783.99,659.25,880.0,987.77,880.0];
+$("#musicBtn").addEventListener("click",()=>{
+  musicOn=!musicOn;
+  $("#musicBtn").classList.toggle("on",musicOn);
+  if(musicOn){
+    if(CONFIG.musicUrl){ audioEl=new Audio(CONFIG.musicUrl); audioEl.loop=true; audioEl.volume=.5; audioEl.play(); }
+    else startChimes();
+  } else {
+    if(audioEl){ audioEl.pause(); audioEl=null; }
+    stopChimes();
+  }
+});
+function startChimes(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  audioCtx.resume();
+  let i=0;
+  const playNote=()=>{
+    const t=audioCtx.currentTime, f=MELODY[i%MELODY.length];
+    [f,f*1.5].forEach(fr=>{
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type="sine"; o.frequency.value=fr;
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.10,t+.05);
+      g.gain.exponentialRampToValueAtTime(.0001,t+1.3);
+      o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t+1.4);
+    });
+    i++;
+  };
+  playNote(); musicTimer=setInterval(playNote,650);
+}
+function stopChimes(){ if(musicTimer) clearInterval(musicTimer); musicTimer=null; }
+
+/* =====================================================================
+   CREATOR
+   ===================================================================== */
+function wishToLine(w){ return `${w.ico}|${w.title}|${w.text}`; }
+function parseWishes(text){
+  const lines=(text||"").split("\n").map(l=>l.trim()).filter(Boolean);
+  return lines.map(l=>{
+    const parts=l.split("|").map(p=>p.trim());
+    return { ico:parts[0]||"🤍", title:parts[1]||"Wish", text:parts[2]||"" };
+  }).filter(w=>w.text);
+}
+$("#createLink").addEventListener("click",()=>{ openCreator(); showScreen("screen-create"); });
+$("#createCancel").addEventListener("click",()=>{ showScreen("screen-lock"); });
+
+function openCreator(){
+  $("#cName").value=CONFIG.herName;
+  $("#cCreator").value=CONFIG.creatorName;
+  $("#cBirthday").value=CONFIG.birthday;
+  $("#cLetter").value=CONFIG.letter;
+  $("#cHidden").value=CONFIG.hiddenMessage;
+  $("#cFinal").value=CONFIG.finalMessage;
+  $("#cWishes").value=CONFIG.wishes.map(wishToLine).join("\n");
+  updateCodePreview();
+}
+function updateCodePreview(){
+  const b=$("#cBirthday").value;
+  $("#cCodePreview").textContent = b ? `Secret code: ${birthdayToCode(b)} (6 digits)` : "Pick a date to generate the 6-digit code";
+}
+$("#cBirthday").addEventListener("change",updateCodePreview);
+
+/* photo + music uploads */
+let pendingPhotos=[];
+$("#cPhotos").addEventListener("change",e=>{
+  const files=[...e.target.files];
+  pendingPhotos=[];
+  let done=0;
+  files.forEach(file=>{
+    const r=new FileReader();
+    r.onload=()=>{ pendingPhotos.push({img:r.result, caption:"A memory we share 🤍"}); if(++done===files.length) $("#cPhotoCount").textContent=files.length+" photo(s) ready to add"; };
+    r.readAsDataURL(file);
+  });
+});
+$("#cMusic").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ CONFIG.musicUrl=r.result; $("#cMusicName").textContent="Using: "+f.name; };
+  r.readAsDataURL(f);
+});
+
+$("#createSave").addEventListener("click",()=>{
+  const b=$("#cBirthday").value;
+  if(!b){ alert("Please pick the recipient's birthday so we can generate the unlock code."); return; }
+  const name=$("#cName").value.trim();
+  if(!name){ alert("Please enter the recipient's name."); return; }
+
+  CONFIG.herName=name || CONFIG.herName;
+  CONFIG.creatorName=$("#cCreator").value.trim() || CONFIG.creatorName;
+  CONFIG.birthday=b;
+  CONFIG.letter=$("#cLetter").value || CONFIG.letter;
+  CONFIG.hiddenMessage=$("#cHidden").value || CONFIG.hiddenMessage;
+  CONFIG.finalMessage=$("#cFinal").value || CONFIG.finalMessage;
+  const parsed=parseWishes($("#cWishes").value);
+  if(parsed.length) CONFIG.wishes=parsed;
+  if(pendingPhotos.length){ CONFIG.memories=pendingPhotos.slice(); pendingPhotos=[]; }
+
+  SECRET=birthdayToCode(CONFIG.birthday);
+  saveConfig();
+
+  // reset lock state for the recipient
+  code=""; renderDots(); setMsg("");
+  showScreen("screen-lock");
+});
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+spawnAmbient();
+splitLetter();
+renderDots();
+</script>
+</body>
+</html>
