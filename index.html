@@ -132,6 +132,40 @@ body::after{
 .sparkle{position:absolute;font-size:20px;animation:spark 1.4s ease-in-out infinite;}
 @keyframes spark{0%,100%{opacity:0;transform:scale(.4) rotate(0);}50%{opacity:1;transform:scale(1.15) rotate(20deg);}}
 
+/* ============ LIFAFA / PREMIUM CARD REVEAL ============ */
+.card-scene{position:relative;width:100%;max-width:340px;height:440px;margin:0 auto;}
+.lifafa{position:absolute;bottom:6%;left:50%;transform:translateX(-50%);width:290px;height:190px;background:linear-gradient(160deg,#f7d3e0,#ebadc6);border-radius:12px;box-shadow:var(--shadow);}
+.lifafa .pocket{position:absolute;inset:0;background:linear-gradient(200deg,rgba(255,255,255,.28),transparent 60%);clip-path:polygon(0 0,100% 0,50% 100%);}
+.lifafa .flap{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(160deg,#fbe3ec,#f0bcd2);clip-path:polygon(0 0,100% 0,50% 55%);transform-origin:top center;transition:transform .7s cubic-bezier(.3,.8,.3,1);z-index:3;}
+.lifafa .flap.open{transform:rotateX(180deg);z-index:1;}
+.lifafa .seal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f6c9d8,#e294b2);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:4;border:2px solid rgba(255,255,255,.55);}
+.premium-card{
+  position:absolute;left:50%;bottom:6%;transform:translateX(-50%) translateY(135%);
+  width:300px;min-height:390px;border-radius:18px;padding:34px 26px 28px;text-align:center;z-index:5;
+  transition:transform .95s cubic-bezier(.2,.9,.25,1.15);
+  background:
+    radial-gradient(160% 120% at 20% 0%, rgba(255,255,255,.92), transparent 50%),
+    linear-gradient(155deg,#fffdf8,#fdeef4 55%,#f3e8fb);
+  border:1px solid rgba(233,139,167,.35);
+  box-shadow:0 30px 60px rgba(120,80,110,.35);
+}
+.premium-card.show{transform:translateX(-50%) translateY(0);}
+.premium-card::before{content:"";position:absolute;inset:10px;border:1.5px solid rgba(232,194,122,.55);border-radius:12px;pointer-events:none;}
+.card-emoji{font-size:50px;line-height:1;display:inline-block;animation:bearBob 3.2s ease-in-out infinite;}
+.card-title{font-family:var(--head);font-size:clamp(1.7rem,6vw,2.2rem);font-weight:600;color:var(--ink);margin:8px 0 4px;}
+.card-sub{color:var(--ink-soft);line-height:1.6;font-weight:600;font-size:1rem;margin-top:6px;}
+
+/* animated "next" button (pulse + shimmer + arrow nudge) */
+.next-btn{margin-top:24px;position:relative;overflow:hidden;animation:pulseGlow 2.2s ease-in-out infinite;}
+@keyframes pulseGlow{
+  0%,100%{box-shadow:0 12px 26px rgba(233,139,167,.4),0 0 0 0 rgba(233,139,167,.35);}
+  50%{box-shadow:0 12px 26px rgba(233,139,167,.55),0 0 0 14px rgba(233,139,167,0);}
+}
+.next-btn .arrow{display:inline-block;transition:transform .3s;}
+.next-btn:hover .arrow{transform:translateX(6px);}
+.next-btn .shimmer{position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:shimmer 2.6s infinite;}
+@keyframes shimmer{0%{left:-60%;}60%,100%{left:130%;}}
+
 /* ============ PROGRESS ============ */
 .progress{position:absolute;top:18px;right:20px;z-index:5;font-weight:800;color:var(--ink-soft);font-size:.9rem;letter-spacing:1px;}
 .pips{display:flex;justify-content:center;gap:8px;margin:22px auto 0;}
@@ -324,13 +358,25 @@ body::after{
   </div>
 </section>
 
-<!-- ================= INTRO ================= -->
-<section class="screen" id="screen-intro">
-  <div class="wrap center">
-    <div style="font-size:60px;animation:bearBob 3.4s ease-in-out infinite;">🎂🤍</div>
-    <h1 class="big" style="margin:16px 0 8px;">Happy Birthday!</h1>
-    <p class="lead">Today is your day.<br>So I made you a little something.</p>
-    <button class="btn mt" id="beginBtn">Let’s Begin →</button>
+<!-- ================= LIFAFA / PREMIUM CARD ================= -->
+<section class="screen" id="screen-card">
+  <div class="wrap">
+    <div class="card-scene">
+      <div class="lifafa" id="lifafa">
+        <div class="pocket"></div>
+        <div class="flap" id="flap"></div>
+        <div class="seal">🤍</div>
+      </div>
+      <div class="premium-card" id="premiumCard">
+        <div class="card-emoji">🎂🤍</div>
+        <h1 class="card-title">Happy Birthday, <span id="cardName">HER NAME</span>!</h1>
+        <p class="card-sub">Today is your day.<br>So I made you a little something.</p>
+        <button class="btn next-btn" id="cardNextBtn">
+          <span class="shimmer"></span>
+          <span>Let’s Begin</span> <span class="arrow">→</span>
+        </button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -489,11 +535,10 @@ body::after{
        "Create your own surprise" wizard (no code needed).
    ===================================================================== */
 const DEFAULTS = {
-  herName: "HER NAME",                 // recipient's name
-  creatorName: "Akarsh",               // your name (signature)
-  birthday: "2009-12-25",              // yyyy-mm-dd → code becomes DDMMYY (6 digits)
+  herName: "HER NAME",
+  creatorName: "Akarsh",
+  birthday: "2009-12-25",           // yyyy-mm-dd → 6-digit DDMMYY code
 
-  // Letter (blank line between paragraphs = new page card automatically)
   letter: `I know words can never fully capture how much you mean to me, but I wanted to try.
 
 From the moment you became part of my life, things felt a little brighter, a little softer, and a whole lot more real. You have this quiet way of making ordinary days feel special, and I don't think you even realize it.
@@ -512,8 +557,6 @@ Happy birthday, truly. Here's to all the beautiful things still coming your way.
 
   finalMessage: `You made it to the very end — I'm so glad you did. Thank you for being exactly who you are. Here's to you, today and always. 🤍`,
 
-  // Photos: each {img, caption}. Leave img:"" for a pretty placeholder.
-  // Delete ALL entries (memories: []) to hide the "Little Moments" section entirely.
   memories: [
     { img: "", caption: "Some moments deserve to stay forever." },
     { img: "", caption: "Just a little memory I wanted to keep here." },
@@ -532,7 +575,7 @@ Happy birthday, truly. Here's to all the beautiful things still coming your way.
     { ico: "📖", title: "New Memories",   text: "May this year write chapters you'll look back on and smile about." },
   ],
 
-  musicUrl: "",   // set automatically if the creator uploads an audio file
+  musicUrl: "",
 };
 // __END_DEFAULTS__
 
@@ -542,7 +585,6 @@ Happy birthday, truly. Here's to all the beautiful things still coming your way.
 const $ = (s)=>document.querySelector(s);
 const $$ = (s)=>[...document.querySelectorAll(s)];
 
-/* --- config load/save (persists across refresh) --- */
 let CONFIG;
 function loadConfig(){
   let saved=null;
@@ -551,21 +593,18 @@ function loadConfig(){
   if(saved){ Object.keys(base).forEach(k=>{ if(saved[k]!==undefined) base[k]=saved[k]; }); }
   return base;
 }
-function saveConfig(){ try{ localStorage.setItem('bday-surprise-config',JSON.stringify(CONFIG)); }catch(e){ console.warn("Could not persist config (likely too large).",e); } }
+function saveConfig(){ try{ localStorage.setItem('bday-surprise-config',JSON.stringify(CONFIG)); }catch(e){ console.warn("Could not persist config.",e); } }
 CONFIG = loadConfig();
 
-/* --- birthday → 6-digit DDMMYY code --- */
 function birthdayToCode(dateStr){
   const parts=(dateStr||"").split("-");
   if(parts.length!==3) return "010101";
   const y=+parts[0], m=+parts[1], d=+parts[2];
-  const dd=String(d).padStart(2,"0"), mm=String(m).padStart(2,"0"), yy=String(y).slice(-2);
-  return dd+mm+yy;
+  return String(d).padStart(2,"0")+String(m).padStart(2,"0")+String(y).slice(-2);
 }
 let SECRET = birthdayToCode(CONFIG.birthday);
 const CODE_LEN = 6;
 
-/* --- ambient floaters --- */
 function spawnAmbient(){
   const icons=["✨","💖","🎈","⭐","🫧","🤍","🌸"];
   for(let i=0;i<14;i++){
@@ -580,7 +619,6 @@ function spawnAmbient(){
   }
 }
 
-/* --- confetti --- */
 const CONF_COLORS=["#e98ba7","#b58ad0","#e8c27a","#ffd9b8","#f5c6d6","#9fd0c9"];
 function confettiBurst(n=90){
   const box=$("#confetti");
@@ -596,7 +634,6 @@ function confettiBurst(n=90){
   }
 }
 
-/* --- screen switching --- */
 function showScreen(id){
   $$(".screen").forEach(s=>s.classList.remove("active"));
   $("#"+id).classList.add("active");
@@ -622,8 +659,7 @@ $("#keypad").addEventListener("click",e=>{
   code+=n; renderDots();
   if(code.length===CODE_LEN){
     setTimeout(()=>{
-      if(code===SECRET) handleCorrect();
-      else handleWrong();
+      if(code===SECRET) handleCorrect(); else handleWrong();
     },220);
   }
 });
@@ -650,7 +686,6 @@ function handleCorrect(){
   },700);
 }
 
-/* --- unlock / gift sequence --- */
 function playUnlockSequence(){
   confettiBurst(60);
   setTimeout(()=>{
@@ -663,8 +698,27 @@ function playUnlockSequence(){
     },2600);
   },500);
 }
-$("#openSurpriseBtn").addEventListener("click",()=>{ confettiBurst(50); showScreen("screen-intro"); });
-$("#beginBtn").addEventListener("click",()=>{ curKey=activeKeys()[0]; renderJourney(); showScreen("screen-journey"); });
+
+/* --- "Open My Surprise" → lifafa opens → premium card rises --- */
+$("#openSurpriseBtn").addEventListener("click",()=>{
+  confettiBurst(40);
+  showScreen("screen-card");
+  $("#flap").classList.remove("open");
+  $("#premiumCard").classList.remove("show");
+  $("#cardName").textContent=CONFIG.herName;
+  setTimeout(()=>{
+    $("#flap").classList.add("open");
+    setTimeout(()=>{
+      $("#premiumCard").classList.add("show");
+      confettiBurst(30);
+    },380);
+  },450);
+});
+
+/* --- animated next button on the card → journey --- */
+$("#cardNextBtn").addEventListener("click",()=>{
+  curKey=activeKeys()[0]; renderJourney(); showScreen("screen-journey");
+});
 
 /* =====================================================================
    JOURNEY (dynamic pages — memories auto-hides when no photos)
@@ -687,9 +741,7 @@ function goBack(){
   const keys=activeKeys(); const i=keys.indexOf(curKey);
   if(i>0) goToKey(keys[i-1]);
 }
-function goToKey(k){
-  curKey=k; renderJourney();
-}
+function goToKey(k){ curKey=k; renderJourney(); }
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-nav]");
   if(!b) return;
@@ -712,7 +764,6 @@ function renderJourney(){
   if(curKey==="cake"){ resetCake(); }
 }
 
-/* --- letter (auto-split) --- */
 let letterPage=0, letterPages=[];
 function splitLetter(){
   const paras=CONFIG.letter.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
@@ -732,7 +783,6 @@ $("#letterNext").addEventListener("click",()=>{
   else goNext();
 });
 
-/* --- memory reveal --- */
 function phSVG(){
   return "data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#f6dfe8'/><stop offset='1' stop-color='#dfe0f4'/></linearGradient></defs><rect width='300' height='300' fill='url(#g)'/><text x='150' y='172' font-size='72' text-anchor='middle'>📷</text></svg>`);
 }
@@ -752,7 +802,6 @@ $("#openMemoryBtn").addEventListener("click",()=>{
   $("#openMemoryBtn").textContent = (memIndex===CONFIG.memories.length-1) ? "Again 🔁" : "Next Memory →";
 });
 
-/* --- wishes --- */
 function renderWishes(){
   const box=$("#wishes"); box.innerHTML="";
   CONFIG.wishes.forEach(w=>{
@@ -899,7 +948,6 @@ function updateCodePreview(){
 }
 $("#cBirthday").addEventListener("change",updateCodePreview);
 
-/* photo + music uploads */
 let pendingPhotos=[];
 $("#cPhotos").addEventListener("change",e=>{
   const files=[...e.target.files];
@@ -936,8 +984,6 @@ $("#createSave").addEventListener("click",()=>{
 
   SECRET=birthdayToCode(CONFIG.birthday);
   saveConfig();
-
-  // reset lock state for the recipient
   code=""; renderDots(); setMsg("");
   showScreen("screen-lock");
   showSharePanel();
@@ -1001,13 +1047,10 @@ function downloadSurprise(){
 }
 $("#downloadBtn").addEventListener("click",downloadSurprise);
 
-/* --- recipient mode helpers --- */
 function enableRecipientMode(){
   $("#createLink").style.display="none";
   $("#shareLink").style.display="none";
 }
-
-/* --- short share link (?from=&to=) received by the recipient --- */
 function parseShareParams(){
   const p=new URLSearchParams(location.search);
   const to=p.get("to"), from=p.get("from");
