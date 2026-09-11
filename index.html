@@ -83,8 +83,9 @@ body::after{
 .lock-msg{min-height:24px;margin:12px 0 -4px;font-weight:700;color:var(--pink-deep);}
 .shake{animation:shake .5s ease;}
 @keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-9px);}40%,80%{transform:translateX(9px);}}
-.create-link{margin-top:26px;font-size:.88rem;color:var(--ink-soft);cursor:pointer;font-weight:700;background:none;border:none;font-family:var(--body);}
+.create-link{margin-top:0;font-size:.88rem;color:var(--ink-soft);cursor:pointer;font-weight:700;background:none;border:none;font-family:var(--body);}
 .create-link:hover{color:var(--pink-deep);}
+.link-row{display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:26px;}
 
 /* ============ CREATOR FORM ============ */
 .creator{max-width:520px;margin:0 auto;text-align:left;}
@@ -107,7 +108,7 @@ body::after{
 .upload-hint{font-size:.78rem;color:var(--ink-soft);font-weight:600;margin-top:4px;}
 
 /* ============ BUTTONS ============ */
-.btn{font-family:var(--body);font-weight:800;font-size:1.05rem;color:#fff;padding:15px 30px;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(120deg,var(--pink-deep),#b58ad0);box-shadow:0 12px 26px rgba(233,139,167,.4);transition:transform .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn{font-family:var(--body);font-weight:800;font-size:1.05rem;color:#fff;padding:15px 30px;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(120deg,var(--pink-deep),#b58ad0);box-shadow:0 12px 26px rgba(233,139,167,.4);transition:transform .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:8px;justify-content:center;}
 .btn:hover{transform:translateY(-2px);box-shadow:0 16px 32px rgba(233,139,167,.5);}
 .btn:active{transform:scale(.96);}
 .btn.ghost{background:var(--glass);color:var(--ink);box-shadow:0 6px 18px rgba(180,140,160,.18);}
@@ -147,14 +148,14 @@ body::after{
 .lead{color:var(--ink-soft);line-height:1.6;font-size:1.02rem;margin-bottom:22px;font-weight:600;}
 
 /* ============ MEMORY REVEAL ============ */
-.memory-stage{min-height:270px;display:flex;align-items:center;justify-content:center;margin-top:18px;flex-direction:column;}
+.memory-stage{min-height:270px;display:flex;align-items:center;justify-content:center;margin-top:18px;flex-direction:column;gap:12px;}
 .memory-polaroid{background:#fff;padding:10px 10px 14px;border-radius:10px;box-shadow:0 14px 34px rgba(140,110,130,.3);max-width:260px;width:100%;display:none;}
 .memory-polaroid.show{display:block;animation:memIn .6s cubic-bezier(.2,.8,.3,1);}
 @keyframes memIn{0%{opacity:0;transform:rotate(-8deg) scale(.7) translateY(26px);}100%{opacity:1;transform:rotate(-2deg) scale(1);}}
 .memory-polaroid .img{width:100%;aspect-ratio:1;border-radius:4px;overflow:hidden;background:linear-gradient(135deg,#f6dfe8,#dfe0f4);}
 .memory-polaroid .img img{width:100%;height:100%;object-fit:cover;}
 .memory-polaroid .cap{margin-top:10px;text-align:center;font-family:var(--head);font-weight:600;color:var(--ink-soft);font-size:.9rem;}
-.memory-done{color:var(--pink-deep);font-weight:800;font-size:.98rem;margin-top:12px;animation:screenIn .5s ease;}
+.memory-done{color:var(--pink-deep);font-weight:800;font-size:.98rem;animation:screenIn .5s ease;}
 
 /* ============ WISH CARDS ============ */
 .wish{background:linear-gradient(150deg,rgba(255,255,255,.85),rgba(255,240,246,.7));border:1px solid rgba(233,139,167,.2);border-radius:20px;padding:20px 22px;margin-bottom:14px;box-shadow:0 8px 22px rgba(180,140,160,.14);text-align:left;opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;}
@@ -184,14 +185,15 @@ body::after{
 .cake-scene.dark{transition:filter 1.2s;filter:brightness(.55) saturate(.85);}
 .cake-scene.glow{transition:filter 1s;filter:none;}
 
-/* ============ ONE LAST SURPRISE OVERLAY ============ */
+/* ============ OVERLAYS (surprise + share) ============ */
 .surprise-overlay{position:fixed;inset:0;z-index:80;background:linear-gradient(160deg,#fff7ee,#f6edfb);display:none;align-items:center;justify-content:center;text-align:center;padding:24px;}
 .surprise-overlay.show{display:flex;animation:screenIn .6s ease;}
 .sor-icon{font-size:56px;margin-bottom:16px;animation:bearBob 2.6s ease-in-out infinite;}
 .sor-text{font-family:var(--head);font-size:clamp(1.6rem,6vw,2.2rem);font-weight:600;color:var(--ink);line-height:1.4;}
-.sor-msg{margin-top:14px;color:var(--ink-soft);font-weight:600;font-size:1.05rem;}
+.sor-msg{margin-top:14px;color:var(--ink-soft);font-weight:600;font-size:1.05rem;line-height:1.6;}
 .sor-fade{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
 .sor-float{position:absolute;animation:floatUp linear infinite;opacity:.55;}
+.share-btns{display:flex;flex-direction:column;gap:12px;margin-top:22px;}
 
 /* ============ CONFETTI ============ */
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden;}
@@ -250,7 +252,11 @@ body::after{
     </div>
 
     <p class="hint">Hint: It’s the date that deserves to be celebrated the most. 🎂</p>
-    <button class="create-link" id="createLink">✨ Create your own surprise</button>
+
+    <div class="link-row">
+      <button class="create-link" id="shareLink">📤 Share this surprise</button>
+      <button class="create-link" id="createLink">✨ Create your own surprise</button>
+    </div>
   </div>
 </section>
 
@@ -259,7 +265,7 @@ body::after{
   <div class="creator wrap">
     <div class="creator-head">
       <h1 class="creator-title">Create a Surprise 🎁</h1>
-      <p class="lead" style="margin-top:6px;">Personalize it, then hand it over. The recipient enters a 6-digit code to unlock.</p>
+      <p class="lead" style="margin-top:6px;">Personalize it, then share it. The recipient enters a 6-digit code to unlock.</p>
     </div>
 
     <div class="field"><label>Recipient’s name</label><input type="text" id="cName" placeholder="e.g. Ananya"></div>
@@ -445,6 +451,26 @@ body::after{
   </div>
 </div>
 
+<!-- ================= SHARE OVERLAY ================= -->
+<div class="surprise-overlay" id="shareOverlay">
+  <div class="sor-fade"></div>
+  <div style="position:relative;z-index:2;max-width:440px;">
+    <div class="sor-icon">🎉</div>
+    <div class="sor-text">Share your surprise</div>
+    <div class="sor-msg">Recipients open the link — or the file — and still need the 6-digit code to unlock it.</div>
+    <div class="share-btns">
+      <div class="field" style="margin-bottom:0;text-align:left;">
+        <label>Your deployed URL <span class="lbl-note">(where the personalized file is hosted)</span></label>
+        <input type="text" id="shareBase" placeholder="https://your-name.vercel.app">
+      </div>
+      <button class="btn" id="copyLinkBtn">📋 Copy Short Link</button>
+      <button class="btn ghost" id="downloadBtn">⬇️ Download Surprise File</button>
+    </div>
+    <p class="form-note" id="shareNote"></p>
+    <button class="btn ghost mt" id="shareDone">Done — Lock It 🔒</button>
+  </div>
+</div>
+
 <!-- ================= FINAL ================= -->
 <section class="screen" id="screen-final">
   <div class="wrap center">
@@ -508,6 +534,7 @@ Happy birthday, truly. Here's to all the beautiful things still coming your way.
 
   musicUrl: "",   // set automatically if the creator uploads an audio file
 };
+// __END_DEFAULTS__
 
 /* =====================================================================
    RUNTIME
@@ -582,6 +609,7 @@ function showScreen(id){
    ===================================================================== */
 let code="";
 const dotsEl=$("#dots");
+dotsEl.innerHTML="";
 for(let i=0;i<CODE_LEN;i++){ const d=document.createElement("div"); d.className="dot"; dotsEl.appendChild(d); }
 function renderDots(){ $$("#dots .dot").forEach((d,i)=>d.classList.toggle("filled",i<code.length)); }
 function setMsg(t){ $("#lockMsg").textContent=t||""; }
@@ -912,11 +940,90 @@ $("#createSave").addEventListener("click",()=>{
   // reset lock state for the recipient
   code=""; renderDots(); setMsg("");
   showScreen("screen-lock");
+  showSharePanel();
 });
+
+/* =====================================================================
+   SHARE (short custom link + downloadable file)
+   ===================================================================== */
+function currentBase(){
+  return location.href.split("?")[0].split("#")[0].replace(/\/$/,"").replace(/\/index\.html$/,"");
+}
+function buildShortLink(){
+  const base=($("#shareBase").value.trim()||currentBase());
+  return base+"?from="+encodeURIComponent(CONFIG.creatorName)+"&to="+encodeURIComponent(CONFIG.herName);
+}
+function showSharePanel(){
+  const input=$("#shareBase");
+  if(location.protocol.startsWith("http") && !input.value) input.value=currentBase();
+  $("#shareNote").textContent = location.protocol==="file:"
+    ? "You're viewing this page locally, so a short LINK can only be opened by others after you host the personalized file. Paste your deployed URL above (or tap Download and send that file). Either way, the recipient still needs the 6-digit code."
+    : "The short link carries the names; the letter, wishes, photos & music live inside the hosted file. If your deployed URL differs from this page, edit it above. The recipient still needs the 6-digit code.";
+  $("#shareOverlay").classList.add("show");
+}
+$("#shareLink").addEventListener("click",showSharePanel);
+$("#shareDone").addEventListener("click",()=>$("#shareOverlay").classList.remove("show"));
+
+function copyShareLink(){
+  const link=buildShortLink();
+  const done=()=>{
+    $("#copyLinkBtn").textContent="Copied! ✓";
+    setTimeout(()=>$("#copyLinkBtn").textContent="📋 Copy Short Link",2200);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(done).catch(()=>{ fallbackCopy(link); done(); });
+  } else { fallbackCopy(link); done(); }
+}
+function fallbackCopy(text){
+  const ta=document.createElement("textarea");
+  ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  ta.remove();
+}
+$("#copyLinkBtn").addEventListener("click",copyShareLink);
+
+function downloadSurprise(){
+  const cfgJson = JSON.stringify(CONFIG).replace(/<\/script/gi,'<\\/script');
+  let html = document.documentElement.outerHTML;
+  const s = html.indexOf("const DEFAULTS = {");
+  const e = html.indexOf("// __END_DEFAULTS__");
+  if(s===-1 || e===-1){ alert("Could not export. Please refresh and try again."); return; }
+  html = html.slice(0,s) + "const DEFAULTS = " + cfgJson + ";\n" + html.slice(e);
+  html = html.replace("<body>", '<body data-exported="1">');
+  const blob = new Blob([html], {type:"text/html"});
+  const a = document.createElement("a");
+  const clean = (CONFIG.herName||"surprise").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  a.href = URL.createObjectURL(blob);
+  a.download = "birthday-surprise-for-" + (clean==="her-name"?"someone-special":clean) + ".html";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+}
+$("#downloadBtn").addEventListener("click",downloadSurprise);
+
+/* --- recipient mode helpers --- */
+function enableRecipientMode(){
+  $("#createLink").style.display="none";
+  $("#shareLink").style.display="none";
+}
+
+/* --- short share link (?from=&to=) received by the recipient --- */
+function parseShareParams(){
+  const p=new URLSearchParams(location.search);
+  const to=p.get("to"), from=p.get("from");
+  if(!to && !from) return;
+  if(to) CONFIG.herName=to.trim();
+  if(from) CONFIG.creatorName=from.trim();
+  document.title="For "+CONFIG.herName+", Always 🤍";
+  enableRecipientMode();
+}
 
 /* =====================================================================
    INIT
    ===================================================================== */
+if(document.body.getAttribute("data-exported")==="1") enableRecipientMode();
+parseShareParams();
+$("#ambient").innerHTML="";
 spawnAmbient();
 splitLetter();
 renderDots();
