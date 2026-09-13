@@ -990,28 +990,35 @@ $("#createSave").addEventListener("click",()=>{
 });
 
 /* =====================================================================
-   SHARE (short custom link + downloadable file)
+   SHARE (short custom link + downloadable file)  — FIXED v2
    ===================================================================== */
 function currentBase(){
   return location.href.split("?")[0].split("#")[0].replace(/\/$/,"").replace(/\/index\.html$/,"");
 }
 function buildShortLink(){
   const base=($("#shareBase").value.trim()||currentBase());
-  return base+"?from="+encodeURIComponent(CONFIG.creatorName)+"&to="+encodeURIComponent(CONFIG.herName);
+  const q=new URLSearchParams({from:CONFIG.creatorName,to:CONFIG.herName,c:SECRET});
+  return base+"?"+q.toString();
 }
 function showSharePanel(){
   const input=$("#shareBase");
   if(location.protocol.startsWith("http") && !input.value) input.value=currentBase();
   $("#shareNote").textContent = location.protocol==="file:"
-    ? "You're viewing this page locally, so a short LINK can only be opened by others after you host the personalized file. Paste your deployed URL above (or tap Download and send that file). Either way, the recipient still needs the 6-digit code."
-    : "The short link carries the names; the letter, wishes, photos & music live inside the hosted file. If your deployed URL differs from this page, edit it above. The recipient still needs the 6-digit code.";
+    ? "A local file link can't be opened by the birthday person yet. Upload this file to a host (Vercel / Netlify / GitHub Pages) so the link works for them, OR use the Download button and send that file directly."
+    : "The link carries the names and the 6-digit unlock code, so it always opens correctly. The letter, wishes, photos & music live inside the hosted file — make sure you uploaded the personalized file, not just the template.";
   $("#shareOverlay").classList.add("show");
 }
 $("#shareLink").addEventListener("click",showSharePanel);
 $("#shareDone").addEventListener("click",()=>$("#shareOverlay").classList.remove("show"));
 
 function copyShareLink(){
-  const link=buildShortLink();
+  const typed=$("#shareBase").value.trim();
+  if(location.protocol==="file:" && !typed){
+    alert("A local file link can't be opened by the birthday person.\n\nDo this instead:\n1. Tap “Download Surprise File” and send that file directly, OR\n2. Upload this page to a host (Vercel / Netlify / GitHub Pages), then come back and copy the link.");
+    return;
+  }
+  const base=typed||currentBase();
+  const link=base+"?"+new URLSearchParams({from:CONFIG.creatorName,to:CONFIG.herName,c:SECRET}).toString();
   const done=()=>{
     $("#copyLinkBtn").textContent="Copied! ✓";
     setTimeout(()=>$("#copyLinkBtn").textContent="📋 Copy Short Link",2200);
@@ -1051,12 +1058,15 @@ function enableRecipientMode(){
   $("#createLink").style.display="none";
   $("#shareLink").style.display="none";
 }
+
+/* --- short share link (?from=&to=&c=) received by the recipient --- */
 function parseShareParams(){
   const p=new URLSearchParams(location.search);
-  const to=p.get("to"), from=p.get("from");
-  if(!to && !from) return;
+  const to=p.get("to"), from=p.get("from"), c=p.get("c");
+  if(!to && !from && !c) return;
   if(to) CONFIG.herName=to.trim();
   if(from) CONFIG.creatorName=from.trim();
+  if(c && /^\d{6}$/.test(c)){ SECRET=c; }          /* ← unlock always works from the link */
   document.title="For "+CONFIG.herName+", Always 🤍";
   enableRecipientMode();
 }
